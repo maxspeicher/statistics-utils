@@ -4,7 +4,7 @@
     <groupId>de.bluekiwi.labs.sio</groupId>
     <artifactId>statistics-utils</artifactId>
     <packaging>war</packaging>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
     <name>sio-statistics-utils</name>
     <url>http://sio.labs.bluekiwi.de</url>
     <dependencies>
