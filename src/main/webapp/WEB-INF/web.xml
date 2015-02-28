@@ -3,7 +3,7 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-    <display-name>SIO Statistics Utils</display-name>
+    <display-name>SIO Machine Learning Utils</display-name>
     
     <listener>
         <listener-class>de.bluekiwi.labs.sio.statistics.ConnectionListener</listener-class>

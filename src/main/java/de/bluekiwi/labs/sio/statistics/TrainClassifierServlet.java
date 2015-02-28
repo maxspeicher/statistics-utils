@@ -40,7 +40,6 @@ public class TrainClassifierServlet extends HttpServlet {
         String context = req.getParameter("context");
         String contextHash = req.getParameter("contextHash");
         String interfaceVersion = req.getParameter("interfaceVersion");
-        boolean useRelativeFeatures = Boolean.parseBoolean(req.getParameter("useRelativeFeatures"));
         String classifier = req.getParameter("classifier");
         String itemName = req.getParameter("itemName");
         String itemValues = req.getParameter("itemValues");
@@ -54,8 +53,8 @@ public class TrainClassifierServlet extends HttpServlet {
             Connection con = DriverManager.getConnection((String) this.getServletContext().getAttribute("jdbcUrl"));
             
             PreparedStatement modelQueryStatement = con.prepareStatement("INSERT INTO wappu_models (project_id, "
-                    + "context, context_hash, interface_version, use_relative_features, item, classifier, model) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE model = VALUES(model)");
+                    + "context, context_hash, interface_version, item, classifier, model) VALUES (?, ?, ?, ?, ?, ?, ?) "
+                    + "ON DUPLICATE KEY UPDATE model = VALUES(model)");
             ResultSet existingModel = modelQueryStatement.executeQuery("SELECT * FROM "
                     + "wappu_models WHERE project_id = " + projectId + " AND context_hash = '" + contextHash
                     + "' AND interface_version = '" + interfaceVersion + "' AND item = '" + itemName
@@ -69,14 +68,9 @@ public class TrainClassifierServlet extends HttpServlet {
             int numInstances = featureValuesArray.length / featureNamesArray.length;
             
             ArrayList<Attribute> attributes = new ArrayList<Attribute>();
-//            List<String> nominalValues = new ArrayList<String>(3);
-            List<String> nominalValues = new ArrayList<String>(2);
+            List<String> nominalValues = new ArrayList<String>(3);
             
-//            nominalValues.add("-1");
-            /*
-             * Two nominal values are sufficient if we have an INUIT questionnaire with
-             * yes/no answers.
-             */
+            nominalValues.add("-1");
             nominalValues.add("0");
             nominalValues.add("1");
             
@@ -127,27 +121,26 @@ public class TrainClassifierServlet extends HttpServlet {
             modelQueryStatement.setString(2, context);
             modelQueryStatement.setString(3, contextHash);
             modelQueryStatement.setString(4, interfaceVersion);
-            modelQueryStatement.setBoolean(5, useRelativeFeatures);
-            modelQueryStatement.setString(6, itemName);
-            modelQueryStatement.setString(7, classifier);
-            modelQueryStatement.setString(8, serializedClassifier);
+            modelQueryStatement.setString(5, itemName);
+            modelQueryStatement.setString(6, classifier);
+            modelQueryStatement.setString(7, serializedClassifier);
             modelQueryStatement.executeUpdate();
             
             modelQueryStatement.close();
             con.close();
-            out.println("{response: 'success'}");
+            out.println("\"success\"");
         } catch (SQLException e) {
             e.printStackTrace();
-            out.println("{error: 'SQLException'}");
+            out.println("\"SQLException\"");
         } catch (InstantiationException e) {
             e.printStackTrace();
-            out.println("{error: 'InstantiationException'}");
+            out.println("\"InstantiationException\"");
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-            out.println("{error: 'IllegalAccessException'}");
+            out.println("\"IllegalAccessException\"");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            out.println("{error: 'ClassNotFoundException'}");
+            out.println("\"ClassNotFoundException\"");
         }
         
         out.flush();

@@ -37,7 +37,6 @@ public class PredictionServlet extends HttpServlet {
         
         int projectId = Integer.parseInt(req.getParameter("projectId"));
         String interfaceVersion = req.getParameter("interfaceVersion");
-        String contextHash = req.getParameter("contextHash");
         String classifier = req.getParameter("classifier");
         String itemName = req.getParameter("itemName");
         String featureNames = req.getParameter("featureNames");
@@ -51,9 +50,8 @@ public class PredictionServlet extends HttpServlet {
             
             Statement modelQueryStatement = con.createStatement();
             ResultSet existingModel = modelQueryStatement.executeQuery("SELECT * FROM "
-                    + "wappu_models WHERE project_id = " + projectId + " AND context_hash = '" + contextHash
-                    + "' AND interface_version = '" + interfaceVersion + "' AND item = '" + itemName + "' AND classifier = '"
-                    + classifier + "'");
+                    + "wappu_models WHERE project_id = " + projectId + " AND interface_version = '" + interfaceVersion
+                    + "' AND item = '" + itemName + "' AND classifier = '" + classifier + "'");
             
             Classifier c;
             
@@ -62,16 +60,11 @@ public class PredictionServlet extends HttpServlet {
             int numInstances = featureValuesArray.length / featureNamesArray.length;
             
             ArrayList<Attribute> attributes = new ArrayList<Attribute>();
-//          List<String> nominalValues = new ArrayList<String>(3);
-          List<String> nominalValues = new ArrayList<String>(2);
-          
-//          nominalValues.add("-1");
-          /*
-           * Two nominal values are sufficient if we have an INUIT questionnaire with
-           * yes/no answers.
-           */
-          nominalValues.add("0");
-          nominalValues.add("1");
+            List<String> nominalValues = new ArrayList<String>(3);
+            
+            nominalValues.add("-1");
+            nominalValues.add("0");
+            nominalValues.add("1");
             
             for (int i=0; i<featureNamesArray.length; ++i) {
                 attributes.add(new Attribute(featureNamesArray[i]));
@@ -114,8 +107,8 @@ public class PredictionServlet extends HttpServlet {
                         sum += prediction[j];
                     }
                     
-                    // prediction is ambiguous (ADJUST ACCORDING TO NUMBER OF NOMINAL VALUES!)
-                    if (prediction.length < 2) {
+                    // prediction is ambiguous
+                    if (prediction.length < 3) {
                         System.out.println("predicition is ambiguous");
                         continue;
                     }
@@ -153,10 +146,10 @@ public class PredictionServlet extends HttpServlet {
             out.println(result);
         } catch (SQLException e) {
             e.printStackTrace();
-            out.println("{error: 'SQLException'}");
+            out.println("\"SQLException\"");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            out.println("{error: 'ClassNotFoundException'}");
+            out.println("\"ClassNotFoundException\"");
         }
         
         out.flush();
